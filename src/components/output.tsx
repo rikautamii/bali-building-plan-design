@@ -22,7 +22,7 @@ export default function Output({
   const [stageConfig, setStageConfig] = React.useState<Konva.StageConfig>({
     container: "container",
   });
-  const [test, setTest] = React.useState("");
+  const [buildingName, setBuildingName] = React.useState("");
 
   useEffect(() => {
     clear();
@@ -182,35 +182,35 @@ export default function Output({
                   const blue = pixelColor[2];
 
                   if (isSimilarColor([red, green, blue], [0, 0, 255])) {
-                    setTest("Utara");
+                    setBuildingName("Utara");
                   } else if (
                     isSimilarColor([red, green, blue], [222, 170, 37])
                   ) {
-                    setTest("Bale Daja");
+                    setBuildingName("Bale Daja");
                   } else if (isSimilarColor([red, green, blue], [255, 0, 0])) {
-                    setTest("Merajan");
+                    setBuildingName("Merajan");
                   } else if (
                     isSimilarColor([red, green, blue], [0, 133, 255])
                   ) {
-                    setTest("Bale Dangin");
+                    setBuildingName("Bale Dangin");
                   } else if (
                     isSimilarColor([red, green, blue], [14, 151, 28])
                   ) {
-                    setTest("Bale Dauh");
+                    setBuildingName("Bale Dauh");
                   } else if (isSimilarColor([red, green, blue], [80, 1, 159])) {
-                    setTest("Bale Delod");
+                    setBuildingName("Bale Delod");
                   } else if (
                     isSimilarColor([red, green, blue], [255, 0, 168])
                   ) {
-                    setTest("Dapur");
+                    setBuildingName("Dapur");
                   } else if (
                     isSimilarColor([red, green, blue], [0, 255, 240])
                   ) {
-                    setTest("Penungun Karang");
+                    setBuildingName("Penungun Karang");
                   } else if (
                     isSimilarColor([red, green, blue], [217, 217, 217])
                   ) {
-                    setTest("Angkul - Angkul");
+                    setBuildingName("Angkul - Angkul");
                   } else {
                     // setTest("");
                   }
@@ -293,7 +293,9 @@ export default function Output({
           )}
         </Layer>
       </Stage>
-      <p>{test}</p>
+      <p className="absolute bottom-0 px-2 py-1 text-sm font-semibold">
+        {buildingName}
+      </p>
       {image && (
         <div className="absolute -right-[60px] top-1/2 transform -translate-y-1/2 h-fit flex flex-col gap-4 w-fit bg-white shadow-sm p-1 rounded-sm">
           <Tool

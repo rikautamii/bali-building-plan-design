@@ -18,6 +18,14 @@ import DialogAreaImage from "./dialog-area-image";
 import Output from "./output";
 import DialogInput from "./dialog-input";
 import DialogLongLat from "./dialog-long-lat";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function Main() {
   const stageRef = React.useRef<Konva.Stage>(null);
@@ -44,6 +52,15 @@ export default function Main() {
   const [footLength, setFootLength] = React.useState(26);
 
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const [remainingOutputArea, setRemainingOutputArea] = React.useState(0);
+  const [surfaceArea, setSurfaceArea] = React.useState(0);
+  const [remainingGroundTruthArea, setRemainingGroundTruthArea] =
+    React.useState<number>();
+
+  useEffect(() => {
+    setRemainingGroundTruthArea(undefined);
+  }, [outputImage]);
 
   useEffect(() => {
     if (area?.closed) {
@@ -144,8 +161,11 @@ export default function Main() {
       setOutputImage({
         image: canvas,
       });
+
       console.log(`Luas Tanah: ${calculateBlackArea(canvasElement)}`);
       console.log(`Sisa Luas Tanah: ${calculateBlackArea(canvas)}`);
+      setSurfaceArea(calculateBlackArea(canvasElement));
+      setRemainingOutputArea(calculateBlackArea(canvas));
     }
     setIsLoading(false);
   };
@@ -313,6 +333,67 @@ export default function Main() {
           <Output image={outputImage} footLength={footLength} />
         </div>
       </div>
+      {outputImage && (
+        <div className="flex flex-col gap-4 mt-8">
+          <p className="font-semibold">
+            Luas Tanah : {surfaceArea} m<sup>2</sup>{" "}
+          </p>
+          <Table className="bg-background max-w-[600px] mx-auto">
+            <TableHeader>
+              <TableRow>
+                <TableHead>#</TableHead>
+                <TableHead>Sisa Luas Tanah</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell>Building Plan Output</TableCell>
+                <TableCell>
+                  {remainingOutputArea} m<sup>2</sup>
+                </TableCell>
+              </TableRow>
+              {remainingGroundTruthArea && (
+                <TableRow>
+                  <TableCell>Building Plan Ground Truth</TableCell>
+                  <TableCell>
+                    {remainingGroundTruthArea} m<sup>2</sup>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          <input
+            type="file"
+            onChange={(e) => {
+              if ((e.target.files?.length ?? 0) > 0) {
+                const img = new Image();
+                const selectedImage = e.target.files![0];
+                const objectURL = URL.createObjectURL(selectedImage);
+                img.onload = () => {
+                  if (img.width === 256 && img.height === 256) {
+                    let canvas = document.createElement("canvas");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    let context = canvas.getContext("2d");
+                    context?.drawImage(img, 0, 0);
+                    setRemainingGroundTruthArea(calculateBlackArea(canvas));
+                  } else {
+                    toast("Please upload an image size 256 x 256", {
+                      icon: <ExclamationTriangleIcon />,
+                    });
+                  }
+
+                  URL.revokeObjectURL(objectURL);
+                  e.target.value = "";
+                };
+
+                img.src = objectURL;
+              }
+            }}
+            accept="image/jpeg, image/png"
+          />
+        </div>
+      )}
       <div className="flex flex-col items-center gap-4 mt-8">
         <p className="font-medium">Object Color Map</p>
         <Legend />
