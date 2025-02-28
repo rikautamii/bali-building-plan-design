@@ -1,8 +1,10 @@
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 
-const Main = dynamic(() => import("@/components/main"), {
-  ssr: false,
-});
+// const Main = dynamic(() => import("@/components/main"), {
+//   ssr: false,
+// });
+
+import Main from "@/components/main";
 
 export default function page() {
   return (
