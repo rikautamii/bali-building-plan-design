@@ -8,7 +8,7 @@ image_path = "example.png"
 image = cv2.imread(image_path)
 
 # Convert to grayscale
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+gray = cv2.cvtColor(image, cv2.  COLOR_BGR2GRAY)
 
 # Apply threshold to isolate the black shape
 _, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
