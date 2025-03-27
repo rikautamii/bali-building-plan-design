@@ -26,8 +26,12 @@ const legends = [
     color: "#50019F",
   },
   {
-    name: "Dapur",
+    name: "Paon",
     color: "#FF00A8",
+  },
+  {
+    name: "Jineng",
+    color: "#65200A",
   },
   {
     name: "Penungun Karang",
