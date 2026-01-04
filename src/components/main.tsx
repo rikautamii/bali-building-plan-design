@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { Image as ImageKonva, Layer, Rect, Stage } from "react-konva";
 import Toolbar from "./toolbar";
 import Direction from "./direction";
+import DistanceTable from "./distance-table";
 import Konva from "konva";
 import { Tool } from "@/types/types";
 import Street from "./street";
@@ -50,17 +51,41 @@ export default function Main() {
   >();
 
   const [footLength, setFootLength] = React.useState(26);
+  const [sideFootLength, setSideFootLength] = React.useState(0);
+
+  const [landLength, setLandLength] = React.useState<number>(0);
+  const [landWidth, setLandWidth] = React.useState<number>(0);
+  const [direction, setDirection] = React.useState<"Utara" | "Timur" | "Selatan" | "Barat">("Selatan");
+  const [orientation, setOrientation] = React.useState<"Bali Utara" | "Bali Selatan">("Bali Selatan");
+
+  const isLandSizeValid = React.useMemo(() => {
+    const okDirection = ["Utara", "Timur", "Selatan", "Barat"].includes(direction);
+    const okOrientation = ["Bali Utara", "Bali Selatan"].includes(orientation);
+
+    const invalidSmallOrSquare =
+      (landLength < 6 && landWidth < 7) ||
+      (landLength < 7 && landWidth < 6) ||
+      landLength === landWidth;
+
+    return okDirection && okOrientation && !invalidSmallOrSquare;
+  }, [direction, orientation, landLength, landWidth]);
+
+  const landArea = React.useMemo(() => {
+    if (!landLength || !landWidth) return 0;
+    return landLength * landWidth; 
+  }, [landLength, landWidth]);
+
 
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const [remainingOutputArea, setRemainingOutputArea] = React.useState(0);
-  const [surfaceArea, setSurfaceArea] = React.useState(0);
-  const [remainingGroundTruthArea, setRemainingGroundTruthArea] =
-    React.useState<number>();
+  // const [remainingOutputArea, setRemainingOutputArea] = React.useState(0);
+  // const [surfaceArea, setSurfaceArea] = React.useState(0);
+  // const [remainingGroundTruthArea, setRemainingGroundTruthArea] =
+  //   React.useState<number>();
 
-  useEffect(() => {
-    setRemainingGroundTruthArea(undefined);
-  }, [outputImage]);
+  // useEffect(() => {
+  //   setRemainingGroundTruthArea(undefined);
+  // }, [outputImage]);
 
   useEffect(() => {
     if (area?.closed) {
@@ -162,10 +187,10 @@ export default function Main() {
         image: canvas,
       });
 
-      console.log(`Luas Tanah: ${calculateBlackArea(canvasElement)}`);
-      console.log(`Sisa Luas Tanah: ${calculateBlackArea(canvas)}`);
-      setSurfaceArea(calculateBlackArea(canvasElement));
-      setRemainingOutputArea(calculateBlackArea(canvas));
+      // console.log(`Luas Tanah: ${calculateBlackArea(canvasElement)}`);
+      // console.log(`Sisa Luas Tanah: ${calculateBlackArea(canvas)}`);
+      // setSurfaceArea(calculateBlackArea(canvasElement));
+      // setRemainingOutputArea(calculateBlackArea(canvas));
     }
     setIsLoading(false);
   };
@@ -179,6 +204,16 @@ export default function Main() {
     isMouseOverStartPoint.current = false;
   };
 
+  const sideFootLengthByKey: Record<string, number> = {
+    Guru: sideFootLength,
+    Uma: sideFootLength,
+    Rudra: sideFootLength,
+    Sri: sideFootLength,
+    Kala: sideFootLength,
+    Brahma: sideFootLength,
+    Yama: sideFootLength,
+    Indra: sideFootLength,
+  };
   const calculateBlackArea = (canvas: HTMLCanvasElement): number => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return 0;
@@ -271,7 +306,8 @@ export default function Main() {
           }
         }}
       />
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
+      {/* <div className="flex flex-col sm:flex-row items-center justify-center gap-5"> */}
+      <div className="flex flex-col lg:flex-row items-start justify-center gap-10 w-full">
         <div className="flex flex-col items-center gap-4">
           <p className="font-medium">Insert Land Image (Denah Lahan)</p>
           <Stage
@@ -328,17 +364,34 @@ export default function Main() {
             </Layer>
           </Stage>
         </div>
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-start gap-4">
           <p className="font-medium">Building Plan Output</p>
-          <Output image={outputImage} footLength={footLength} />
+
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+            {/* kiri: gambar output */}
+            <Output image={outputImage} footLength={footLength} />
+
+            {/* kanan: tabel jarak */}
+            {outputImage && (
+              <div className="w-full lg:w-[520px]">
+                <DistanceTable
+                  footLength={footLength}
+                  sideFootLengthByKey={sideFootLengthByKey}
+                  landLength={landLength}
+                  landWidth={landWidth}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
       {outputImage && (
         <div className="flex flex-col gap-4 mt-8">
           <p className="font-semibold">
-            Luas Tanah : {surfaceArea} m<sup>2</sup>{" "}
+            {/* Luas Tanah : {surfaceArea} m<sup>2</sup>{" "} */}
+            Luas Tanah : {landArea.toFixed(2)} m<sup>2</sup>
           </p>
-          <Table className="bg-background max-w-[600px] mx-auto">
+          {/* <Table className="bg-background max-w-[600px] mx-auto">
             <TableHeader>
               <TableRow>
                 <TableHead>#</TableHead>
@@ -361,7 +414,7 @@ export default function Main() {
                 </TableRow>
               )}
             </TableBody>
-          </Table>
+          </Table> */}
           <input
             type="file"
             onChange={(e) => {
@@ -376,7 +429,7 @@ export default function Main() {
                     canvas.height = img.height;
                     let context = canvas.getContext("2d");
                     context?.drawImage(img, 0, 0);
-                    setRemainingGroundTruthArea(calculateBlackArea(canvas));
+                    // setRemainingGroundTruthArea(calculateBlackArea(canvas));
                   } else {
                     toast("Please upload an image size 256 x 256", {
                       icon: <ExclamationTriangleIcon />,
@@ -425,7 +478,7 @@ export default function Main() {
           });
         }}
       />
-      <DialogInput
+      {/* <DialogInput
         open={tool === "generate"}
         onOpenChange={(open) => {
           if (!open) setTool("mouse");
@@ -435,7 +488,48 @@ export default function Main() {
           setFootLength(footLength);
           generateImage();
         }}
+      /> */}
+
+      <DialogInput
+        open={tool === "generate"}
+        onOpenChange={(open) => {
+          if (!open) setTool("mouse");
+        }}
+        onSubmit={(
+          footLength,
+          sideFootLength,
+          landLength,
+          landWidth,
+          gateDirection,
+          landOrientation
+        ) => {
+          setTool("mouse");
+
+          setFootLength(footLength);
+          setSideFootLength(sideFootLength);
+
+          setLandLength(landLength);
+          setLandWidth(landWidth);
+
+          setDirection(gateDirection);
+          setOrientation(landOrientation);
+
+          const invalid =
+            (landLength < 6 && landWidth < 7) ||
+            (landLength < 7 && landWidth < 6) ||
+            landLength === landWidth;
+
+          if (invalid) {
+            toast("Ukuran lahan tidak valid (terlalu kecil atau persegi).", {
+              icon: <ExclamationTriangleIcon />,
+            });
+            return;
+          }
+
+          generateImage();
+        }}
       />
+
     </div>
   );
 }
