@@ -38,6 +38,10 @@ const legends = [
     color: "#00FFF0",
   },
   {
+    name: "Jineng",
+    color: "#FE5206",
+  },
+  {
     name: "Angkul - Angkul",
     color: "#D9D9D9",
   },

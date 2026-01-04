@@ -298,7 +298,7 @@ export default function Output({
       </p>
       {image && (
         <div className="absolute -right-[60px] top-1/2 transform -translate-y-1/2 h-fit flex flex-col gap-4 w-fit bg-white shadow-sm p-1 rounded-sm">
-          <Tool
+          {/* <Tool
             icon={<PlusIcon />}
             tooltip="Zoom In"
             onClick={() => {
@@ -311,8 +311,8 @@ export default function Output({
                 });
               }
             }}
-          />
-          <Tool
+          /> */}
+          {/* <Tool
             icon={<MinusIcon />}
             tooltip="Zoom Out"
             onClick={() => {
@@ -327,8 +327,8 @@ export default function Output({
                 });
               }
             }}
-          />
-          <Tool icon={<ReloadIcon />} tooltip="Clear" onClick={clear} />
+          /> */}
+          {/* <Tool icon={<ReloadIcon />} tooltip="Clear" onClick={clear} /> */}
         </div>
       )}
     </div>
