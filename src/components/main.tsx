@@ -11,7 +11,7 @@ import Street from "./street";
 import Area from "./area";
 import { toast } from "sonner";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import * as tf from "@tensorflow/tfjs";
+// import * as tf from "@tensorflow/tfjs";
 import Legend from "./legend";
 import { delay, getCoordinate } from "@/lib/utils";
 import LoadingOverlay from "./loading-overlay";
@@ -156,44 +156,76 @@ export default function Main() {
     }
   };
 
+  // const generateImage = async () => {
+  //   setIsLoading(true);
+  //   await delay(1000);
+  //   const canvasElement = stageRef?.current?.toCanvas();
+
+  //   if (canvasElement) {
+  //     const model = await tf.loadLayersModel("/model/model.json");
+  //     const outputTensor = tf.tidy(() => {
+  //       let img = tf.browser.fromPixels(canvasElement).toFloat();
+
+  //       img = tf.image.resizeBilinear(img, [256, 256]);
+  //       img = img.expandDims().div(127.5).sub(1);
+
+  //       const outputTensor = model.apply(img, {
+  //         training: true,
+  //       }) as tf.Tensor;
+
+  //       return outputTensor
+  //         .reshape([256, 256, 3])
+  //         .mul(0.5)
+  //         .add(0.5)
+  //         .mul(255)
+  //         .toInt() as tf.Tensor3D;
+  //     });
+
+  //     var canvas = document.createElement("canvas");
+  //     await tf.browser.toPixels(outputTensor, canvas);
+  //     setOutputImage({
+  //       image: canvas,
+  //     });
+
+  //     // console.log(`Luas Tanah: ${calculateBlackArea(canvasElement)}`);
+  //     // console.log(`Sisa Luas Tanah: ${calculateBlackArea(canvas)}`);
+  //     // setSurfaceArea(calculateBlackArea(canvasElement));
+  //     // setRemainingOutputArea(calculateBlackArea(canvas));
+  //   }
+  //   setIsLoading(false);
+  // };
+
   const generateImage = async () => {
     setIsLoading(true);
     await delay(1000);
+
     const canvasElement = stageRef?.current?.toCanvas();
-
-    if (canvasElement) {
-      const model = await tf.loadLayersModel("/model/model.json");
-      const outputTensor = tf.tidy(() => {
-        let img = tf.browser.fromPixels(canvasElement).toFloat();
-
-        img = tf.image.resizeBilinear(img, [256, 256]);
-        img = img.expandDims().div(127.5).sub(1);
-
-        const outputTensor = model.apply(img, {
-          training: true,
-        }) as tf.Tensor;
-
-        return outputTensor
-          .reshape([256, 256, 3])
-          .mul(0.5)
-          .add(0.5)
-          .mul(255)
-          .toInt() as tf.Tensor3D;
-      });
-
-      var canvas = document.createElement("canvas");
-      await tf.browser.toPixels(outputTensor, canvas);
-      setOutputImage({
-        image: canvas,
-      });
-
-      // console.log(`Luas Tanah: ${calculateBlackArea(canvasElement)}`);
-      // console.log(`Sisa Luas Tanah: ${calculateBlackArea(canvas)}`);
-      // setSurfaceArea(calculateBlackArea(canvasElement));
-      // setRemainingOutputArea(calculateBlackArea(canvas));
+    if (!canvasElement) {
+      setIsLoading(false);
+      return;
     }
+
+    // ✅ client-only import
+    const tf = await import("@tensorflow/tfjs");
+
+    const model = await tf.loadLayersModel("/model/model.json");
+    const outputTensor = tf.tidy(() => {
+      let img = tf.browser.fromPixels(canvasElement).toFloat();
+      img = tf.image.resizeBilinear(img, [256, 256]);
+      img = img.expandDims().div(127.5).sub(1);
+
+      const out = model.apply(img, { training: true }) as tf.Tensor;
+
+      return out.reshape([256, 256, 3]).mul(0.5).add(0.5).mul(255).toInt() as any;
+    });
+
+    const canvas = document.createElement("canvas");
+    await tf.browser.toPixels(outputTensor as any, canvas);
+    setOutputImage({ image: canvas });
+
     setIsLoading(false);
   };
+
 
   const clear = () => {
     setTool("mouse");
