@@ -201,7 +201,7 @@ export default function DialogAreaImage({
               <input {...getInputProps()} />
               <UploadIcon />
               <p className="text-xs text-center text-gray-500 mt-4">
-                Drag 'n' drop some files here, or click to select files
+                Drag and drop some files here, or click to select files
               </p>
             </div>
           </div>
