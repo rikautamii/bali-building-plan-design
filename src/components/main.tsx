@@ -11,7 +11,7 @@ import Street from "./street";
 import Area from "./area";
 import { toast } from "sonner";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-// import * as tf from "@tensorflow/tfjs";
+import * as tf from "@tensorflow/tfjs";
 import Legend from "./legend";
 import { delay, getCoordinate } from "@/lib/utils";
 import LoadingOverlay from "./loading-overlay";
